@@ -77,7 +77,7 @@ void render2DTree(Node* node, pcl::visualization::PCLVisualizer::Ptr& viewer, Bo
 
 void Proximity(int indice, const std::vector<std::vector<float>> points, std::vector<int> &cluster_id, std::vector<bool> &Processed, KdTree* tree, float distanceTol){
   
-    Processed[indice] == true;
+    Processed[indice] = true;
     cluster_id.push_back(indice);
     
     std::vector<int> nearby_points = tree->search(points[indice], distanceTol);

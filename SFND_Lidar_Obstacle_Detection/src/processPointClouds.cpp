@@ -28,12 +28,48 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(ty
     auto startTime = std::chrono::steady_clock::now();
 
     // TODO:: Fill in the function to do voxel grid point reduction and region based filtering
+  
+  // Create the filtering object
+  typename pcl::PointCloud<PointT>::Ptr cloud_filtered (new pcl::PointCloud<PointT>()); 
+  pcl::VoxelGrid<PointT> sor;
+  sor.setInputCloud (cloud);
+  sor.setLeafSize (filterRes, filterRes, filterRes);
+  sor.filter (*cloud_filtered);
+  
+  //region of interest
+  typename pcl::PointCloud<PointT>::Ptr cloud_interest (new pcl::PointCloud<PointT>());
+  pcl::CropBox<PointT> cropBox(true);
+  cropBox.setMin(minPoint);
+  cropBox.setMax(maxPoint);
+  cropBox.setInputCloud(cloud_filtered);
+  cropBox.filter(*cloud_interest);
+  
+  //roof
+  std::vector<int> indices;
+  pcl::CropBox<PointT> roof(true);
+  roof.setMin(Eigen::Vector4f(-1.5, -1.7, -1, 1));
+  roof.setMax(Eigen::Vector4f(2.6, 1.7, -0.4, 1));
+  roof.setInputCloud(cloud_interest);
+  roof.filter(indices);
 
+  //
+  typename pcl::PointIndices::Ptr inliners (new pcl::PointIndices); 
+    
+    for (int index : indices){
+        inliners -> indices.push_back(index);
+    }
+  pcl::ExtractIndices<PointT> extract;
+  // Extract the roof
+  extract.setInputCloud (cloud_interest);
+  extract.setIndices (inliners);
+  extract.setNegative (true);
+  extract.filter (*cloud_interest);
+  
     auto endTime = std::chrono::steady_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
     std::cout << "filtering took " << elapsedTime.count() << " milliseconds" << std::endl;
 
-    return cloud;
+    return cloud_interest;
 
 }
 
@@ -49,7 +85,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
         planeCloud -> points.push_back(cloud -> points[index]);
     }
     
-    pcl::ExtractIndices<pcl::PointXYZ> extract;
+    typename pcl::ExtractIndices<PointT> extract;
     // Extract the inliers
     extract.setInputCloud (cloud);
     extract.setIndices (inliers);
@@ -104,7 +140,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
         }
         
         // Measure distance between every point and fitted plane
-        pcl::PointXYZ point = cloud->points[index];
+        PointT point = cloud->points[index];
         float x4 = point.x;
         float y4 = point.y;
         float z4 = point.z;
@@ -116,7 +152,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
         }
       }
       
-      // Return indicies of inliers from fitted line with most inliers
+      // Return indicies of inliers from fitted plane with most inliers
       if (inliers->indices.size() > inliersResult->indices.size())
       {
         inliersResult->indices = inliers->indices;
@@ -191,7 +227,7 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
   std::vector<pcl::PointIndices> cluster_indices;
   
   //extracted the clusters out of our point cloud and saved the indices in cluster_indices
-  pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
+  typename pcl::EuclideanClusterExtraction<PointT> ec;
   ec.setClusterTolerance (clusterTolerance); 
   ec.setMinClusterSize (minSize);
   ec.setMaxClusterSize (maxSize);

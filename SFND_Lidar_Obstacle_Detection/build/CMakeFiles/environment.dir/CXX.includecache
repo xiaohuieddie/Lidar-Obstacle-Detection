@@ -6,6 +6,10 @@
 
 #IncludeRegexTransform: 
 
+/home/workspace/SFND_Lidar_Obstacle_Detection/src/KDtree_3D.h
+render/render.h
+/home/workspace/SFND_Lidar_Obstacle_Detection/src/render/render.h
+
 /home/workspace/SFND_Lidar_Obstacle_Detection/src/environment.cpp
 sensors/lidar.h
 /home/workspace/SFND_Lidar_Obstacle_Detection/src/sensors/lidar.h
@@ -19,6 +23,8 @@ processPointClouds.cpp
 /home/workspace/SFND_Lidar_Obstacle_Detection/src/processPointClouds.cpp
 processPointClouds.h
 /home/workspace/SFND_Lidar_Obstacle_Detection/src/processPointClouds.h
+KDtree_3D.h
+/home/workspace/SFND_Lidar_Obstacle_Detection/src/KDtree_3D.h
 
 /home/workspace/SFND_Lidar_Obstacle_Detection/src/processPointClouds.h
 pcl/io/pcd_io.h

@@ -1,7 +1,7 @@
 // PCL lib Functions for processing point clouds 
 
 #include "processPointClouds.h"
-#include "./quiz/cluster/kdtree.h"
+#include "KDtree_3D.h"
 
 //constructor:
 template<typename PointT>
@@ -207,6 +207,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     return segResult;
 }
 
+/*
 template<typename PointT>
 void ProcessPointClouds<PointT>::Proximity(int indice, const std::vector<std::vector<float>> points, std::vector<int> &cluster_id, std::vector<bool> &Processed, KdTree* tree, float distanceTol){
 Processed[indice] = true;
@@ -227,18 +228,6 @@ template<typename PointT>
 std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::Clustering_Scratch(typename pcl::PointCloud<PointT>::Ptr cloud, float clusterTolerance, int minSize, int maxSize)
 {
 void Proximity(int indice, const std::vector<std::vector<float>> points, std::vector<int> &cluster_id, std::vector<bool> &Processed, KdTree* tree, float distanceTol){
-  
-    Processed[indice] = true;
-    cluster_id.push_back(indice);
-    
-    std::vector<int> nearby_points = tree->search(points[indice], distanceTol);
-   
-    for (int i : nearby_points){
-     if (!Processed[i]){
-      Proximity(i, points, cluster_id, Processed, tree, distanceTol);
-     }
-    }
-  }
 
 
 
@@ -266,7 +255,7 @@ std::vector<std::vector<int>> euclideanCluster(const std::vector<std::vector<flo
 }
 
 }
-
+*/
 //Build Clustering function with the help with pcl
 template<typename PointT>
 std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::Clustering(typename pcl::PointCloud<PointT>::Ptr cloud, float clusterTolerance, int minSize, int maxSize)

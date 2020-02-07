@@ -69,7 +69,7 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
   */
   
   //using Segment function developed from scratch
-  std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentCloud = pointProcessor.Segment(filterCloud, 100, 0.21);
+  std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentCloud = pointProcessor.Segment_Scratch(filterCloud, 100, 0.21);
   
   //render the plane points    
   renderPointCloud(viewer,segmentCloud.second,"planeCloud",Color(0,1,0));
@@ -130,7 +130,7 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
     */
   
     //using Segment function developed from scratch
-    std::pair<pcl::PointCloud<pcl::PointXYZ>::Ptr, pcl::PointCloud<pcl::PointXYZ>::Ptr> segmentCloud = pointProcessor.Segment(inputCloud, 100, 0.2);
+    std::pair<pcl::PointCloud<pcl::PointXYZ>::Ptr, pcl::PointCloud<pcl::PointXYZ>::Ptr> segmentCloud = pointProcessor.Segment_Scratch(inputCloud, 100, 0.2);
    
  //render the obstacle cloud points and plane points    
   /*  renderPointCloud(viewer,segmentCloud.first,"obstCloud",Color(1,0,0));

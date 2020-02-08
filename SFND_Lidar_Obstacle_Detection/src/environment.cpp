@@ -35,11 +35,13 @@ std::vector<Car> initHighway(bool renderScene, pcl::visualization::PCLVisualizer
 }
 
 void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointClouds<pcl::PointXYZI>* pointProcessorI, const pcl::PointCloud<pcl::PointXYZI>::Ptr& inputCloud){
-  /* 
+
+   /*
+void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer){
   //testing with one pcd file
   ProcessPointClouds<pcl::PointXYZI> *pointProcessorI = new ProcessPointClouds<pcl::PointXYZI>();
   pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloud = pointProcessorI->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd");
-  */ 
+  */
   
   // filtering the point cloud
   pcl::PointCloud<pcl::PointXYZI>::Ptr filterCloud = pointProcessorI->FilterCloud(inputCloud, 0.1 , Eigen::Vector4f (-10, -6,-2, 1), Eigen::Vector4f ( 30, 7, 2, 1));
@@ -77,9 +79,13 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
   //render the obstacle points    
   //renderPointCloud(viewer,segmentCloud.first,"obstacleCloud",Color(1,0,0));
   
-  //render cluster of obstacle cloud
+  //Perform clustering from scratch
+  //std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessor.Clustering_Scratch(segmentCloud.first, 0.3, 50, 2000);
+  
+  //use pcl clustering 
   std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessor.Clustering(segmentCloud.first, 0.3, 50, 2000);
 
+  //render cluster of obstacle cloud
   int clusterId = 0;
   std::vector<Color> colors = {Color(1,0,0), Color(0,1,0), Color(0,0,1)};
 
@@ -138,7 +144,9 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
     */
   
   //render cluster of obstacle cloud
-  std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> cloudClusters = pointProcessor.Clustering(segmentCloud.first, 1.0, 3, 30);
+  std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> cloudClusters = pointProcessor.Clustering_Scratch(segmentCloud.first, 1.0, 3, 30);
+  
+  //std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> cloudClusters = pointProcessor.Clustering(segmentCloud.first, 1.0, 3, 30);
 
 int clusterId = 0;
 std::vector<Color> colors = {Color(1,0,0), Color(0,1,0), Color(0,0,1)};

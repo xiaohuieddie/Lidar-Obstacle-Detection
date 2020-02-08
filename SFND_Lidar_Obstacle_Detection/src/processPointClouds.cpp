@@ -1,7 +1,6 @@
 // PCL lib Functions for processing point clouds 
 
 #include "processPointClouds.h"
-#include "KDtree_3D.h"
 
 //constructor:
 template<typename PointT>
@@ -133,8 +132,9 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
       float c = (x2-x1)*(y3-y1) - (y2-y1)*(x3-x1);
       float d = -(a*x1 + b*y1 + c*z1);
       
-      //skip the three points in the fitted plane
+      
       for (int index=0; index<cloud->points.size(); index++){
+        //skip the three points in the fitted plane
         if (index == (inliers->indices[0] or inliers->indices[1] or inliers->indices[2])){
           continue;
         }
@@ -207,55 +207,76 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     return segResult;
 }
 
-/*
-template<typename PointT>
-void ProcessPointClouds<PointT>::Proximity(int indice, const std::vector<std::vector<float>> points, std::vector<int> &cluster_id, std::vector<bool> &Processed, KdTree* tree, float distanceTol){
-Processed[indice] = true;
+
+template<typename PointT> void ProcessPointClouds<PointT>::Proximity(int indice, typename pcl::PointCloud<PointT>::Ptr cloud, std::vector<int> &cluster_id, std::vector<bool> &Processed, KdTree* tree, float distanceTol){
+
+	Processed[indice] = true;
     cluster_id.push_back(indice);
     
-    std::vector<int> nearby_points = tree->search(points[indice], distanceTol);
+    std::vector<int> nearby_points = tree->search(cloud->points[indice], distanceTol);
    
     for (int i : nearby_points){
      if (!Processed[i]){
-      Proximity(i, points, cluster_id, Processed, tree, distanceTol);
+      Proximity(i, cloud, cluster_id, Processed, tree, distanceTol);
      }
     }
-
 }
 
 //Build Clustering_Scratch Function from scratch
 template<typename PointT>
-std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::Clustering_Scratch(typename pcl::PointCloud<PointT>::Ptr cloud, float clusterTolerance, int minSize, int maxSize)
+std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::Clustering_Scratch(typename pcl::PointCloud<PointT>::Ptr cloud, float distanceTol, int minSize, int maxSize)
 {
-void Proximity(int indice, const std::vector<std::vector<float>> points, std::vector<int> &cluster_id, std::vector<bool> &Processed, KdTree* tree, float distanceTol){
-
-
-
-std::vector<std::vector<int>> euclideanCluster(const std::vector<std::vector<float>> points, KdTree* tree, float distanceTol)
-{
-
-	// TODO: Fill out this function to return list of indices for each cluster
-
+	
+    std::vector<typename pcl::PointCloud<PointT>::Ptr> Cloud_Clusters;
+  	KdTree* tree = new KdTree;
+  
+    for (int i=0; i<cloud->points.size(); i++) 
+    	tree->insert(cloud->points[i],i); 
+  
+	//initialize a clusters list
 	std::vector<std::vector<int>> clusters;
-    std::vector<bool> Processed_points(points.size(), false);
+  	//create a bool type list to store processed points
+    std::vector<bool> Processed_points(cloud->points.size(), false);
+  
+  	//iterate each points. 
     int i=0;
-    while (i < points.size()){
+    while (i < cloud->points.size()){
       if (Processed_points[i]){
         i++;
         continue;
       }
+      
+      //If the points has not been processed, find the nearby points and store them into cluster_id
       std::vector<int> cluster_id;
-      Proximity(i, points, cluster_id, Processed_points, tree, distanceTol);
-      clusters.push_back(cluster_id);
+      
+      Proximity(i, cloud, cluster_id, Processed_points, tree, distanceTol);
+      
+      //Ensure the cluster size is within the predefined range
+      if ((cluster_id.size()<minSize) || (cluster_id.size()>maxSize)){
+        continue;
+      }
+      else{
+        // push each points of the same cluster into CLusters point cloud
+        typename pcl::PointCloud<PointT>::Ptr Clusters (new pcl::PointCloud<PointT>());
+        for (int index : cluster_id){
+            Clusters -> points.push_back(cloud -> points[index]);
+        }
+          
+         //define the size of each cluster
+        Clusters->width = Clusters -> points.size ();
+        Clusters->height = 1;
+        Clusters->is_dense = true;
+    
+    	//save each cluster into 'Cloud_Clusters'
+    	Cloud_Clusters.push_back (Clusters);
+        }
       i++;
     }
   
-	return clusters;
-
+	return Cloud_Clusters;
 }
 
-}
-*/
+
 //Build Clustering function with the help with pcl
 template<typename PointT>
 std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::Clustering(typename pcl::PointCloud<PointT>::Ptr cloud, float clusterTolerance, int minSize, int maxSize)

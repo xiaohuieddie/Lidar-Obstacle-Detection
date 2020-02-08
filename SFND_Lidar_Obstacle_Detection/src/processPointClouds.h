@@ -18,6 +18,7 @@
 #include <ctime>
 #include <chrono>
 #include "render/box.h"
+#include "KDtree_3D.h"
 
 template<typename PointT>
 class ProcessPointClouds {
@@ -39,6 +40,8 @@ public:
     std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> SegmentPlane(typename pcl::PointCloud<PointT>::Ptr cloud, int maxIterations, float distanceThreshold);
 
     std::vector<typename pcl::PointCloud<PointT>::Ptr> Clustering(typename pcl::PointCloud<PointT>::Ptr cloud, float clusterTolerance, int minSize, int maxSize);
+
+	void Proximity(int indice, typename pcl::PointCloud<PointT>::Ptr cloud, std::vector<int> &cluster_id, std::vector<bool> &Processed, KdTree* tree, float distanceTol);
 
     std::vector<typename pcl::PointCloud<PointT>::Ptr> Clustering_Scratch(typename pcl::PointCloud<PointT>::Ptr cloud, float clusterTolerance, int minSize, int maxSize);
 
